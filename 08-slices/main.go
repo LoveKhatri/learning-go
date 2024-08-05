@@ -42,4 +42,13 @@ func main() {
 	// sort
 	slices.Sort(prices)
 	fmt.Println("Prices after sort:", prices)
+
+	// Remove value from slice based on index
+	var courses = []string{"Python", "Go", "Java", "JavaScript"}
+	fmt.Println("Courses:", courses)
+
+	var index = 2
+	courses = append(courses[:index], courses[index+1:]...)
+
+	fmt.Println("Courses after remove:", courses)
 }
