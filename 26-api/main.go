@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -25,7 +27,8 @@ var courses []Course
 
 // middlewares
 func (c *Course) IsEmpty() bool {
-	return c.CourseId == "" && c.CourseName == ""
+	// return c.CourseId == "" && c.CourseName == ""
+	return c.CourseName == ""
 }
 
 func main() {
@@ -33,11 +36,11 @@ func main() {
 }
 
 // Controllers
-func serveHome(w http.ResponseWriter, r *http.Response) {
+func serveHome(w http.ResponseWriter, _ *http.Response) {
 	w.Write([]byte("Welcome to Home page"))
 }
 
-func getAllCourse(w http.ResponseWriter, r *http.Request) {
+func getAllCourse(w http.ResponseWriter, _ *http.Request) {
 	fmt.Println("Get all courses")
 
 	w.Header().Set("Content-Type", "application/json")
@@ -60,4 +63,31 @@ func getCourse(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json.NewEncoder(w).Encode("No Course found with given ID")
+}
+
+func createCourse(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Create course")
+
+	w.Header().Set("Content-Type", "application/json")
+
+	// Empty body
+	if r.Body == nil {
+		json.NewEncoder(w).Encode("Empty Body")
+		return
+	}
+
+	var course Course
+
+	// {} body
+	_ = json.NewDecoder(r.Body).Decode(&course)
+	if course.IsEmpty() {
+		json.NewEncoder(w).Encode("No Course found in body")
+		return
+	}
+
+	// Generate unique ID
+	course.CourseId = strconv.Itoa(rand.Intn(1000000))
+	courses = append(courses, course)
+
+	json.NewEncoder(w).Encode(course)
 }
