@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -33,10 +34,27 @@ func (c *Course) IsEmpty() bool {
 
 func main() {
 	fmt.Println("Hello from API")
+
+	r := mux.NewRouter()
+
+	// seeding
+	courses = append(courses, Course{CourseId: "1", CourseName: "React", CoursePrice: 100, Author: &Author{Fullname: "John Doe", Website: "https://johndoe.com"}})
+	courses = append(courses, Course{CourseId: "2", CourseName: "Angular", CoursePrice: 200, Author: &Author{Fullname: "Jane Doe", Website: "https://janedoe.com"}})
+
+	// Routes
+	r.HandleFunc("/", serveHome).Methods("GET")
+	r.HandleFunc("/courses", getAllCourse).Methods("GET")
+	r.HandleFunc("/course/{id}", getCourse).Methods("GET")
+	r.HandleFunc("/course", createCourse).Methods("POST")
+	r.HandleFunc("/course/{id}", updateCourse).Methods("PUT")
+	r.HandleFunc("/course/{id}", deleteCourse).Methods("DELETE")
+
+	// Listen to a port
+	log.Fatal(http.ListenAndServe(":3000", r))
 }
 
 // Controllers
-func serveHome(w http.ResponseWriter, _ *http.Response) {
+func serveHome(w http.ResponseWriter, _ *http.Request) {
 	w.Write([]byte("Welcome to Home page"))
 }
 
